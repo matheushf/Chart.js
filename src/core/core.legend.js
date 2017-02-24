@@ -8,7 +8,7 @@ module.exports = function (Chart) {
 	Chart.defaults.global.legend = {
 
 		display: true,
-		position: 'bottom',
+		position: 'top',
 		fullWidth: true, // marks that this box should take the full width of the canvas (pushing down other boxes)
 		reverse: false,
 
@@ -30,6 +30,7 @@ module.exports = function (Chart) {
 		labels: {
 			boxWidth: 40,
 			padding: 10,
+			buttonStyle: true,
 			// Generates labels shown in the legend
 			// Valid properties to return:
 			// text : text to display
@@ -436,7 +437,9 @@ module.exports = function (Chart) {
 						cursor.line++;
 					}
 
-					drawButton(x, y, textWidth, boxWidth);
+					if (opts.labels && opts.labels.buttonStyle) {
+						drawButton(x, y, textWidth, boxWidth);
+					}
 
 					drawLegendBox(x, y, legendItem);
 
