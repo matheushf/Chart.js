@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(Chart) {
+module.exports = function (Chart) {
 
 	var helpers = Chart.helpers;
 	var noop = helpers.noop;
@@ -8,18 +8,18 @@ module.exports = function(Chart) {
 	Chart.defaults.global.legend = {
 
 		display: true,
-		position: 'top',
+		position: 'bottom',
 		fullWidth: true, // marks that this box should take the full width of the canvas (pushing down other boxes)
 		reverse: false,
 
 		// a callback that will handle
-		onClick: function(e, legendItem) {
+		onClick: function (e, legendItem) {
 			var index = legendItem.datasetIndex;
 			var ci = this.chart;
 			var meta = ci.getDatasetMeta(index);
 
 			// See controller.isDatasetVisible comment
-			meta.hidden = meta.hidden === null? !ci.data.datasets[index].hidden : null;
+			meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
 
 			// We hid a dataset ... rerender the chart
 			ci.update();
@@ -41,25 +41,25 @@ module.exports = function(Chart) {
 			// lineDashOffset :
 			// lineJoin :
 			// lineWidth :
-			generateLabels: function(chart) {
+			generateLabels: function (chart) {
 				var data = chart.data;
-				return helpers.isArray(data.datasets) ? data.datasets.map(function(dataset, i) {
-					return {
-						text: dataset.label,
-						fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
-						hidden: !chart.isDatasetVisible(i),
-						lineCap: dataset.borderCapStyle,
-						lineDash: dataset.borderDash,
-						lineDashOffset: dataset.borderDashOffset,
-						lineJoin: dataset.borderJoinStyle,
-						lineWidth: dataset.borderWidth,
-						strokeStyle: dataset.borderColor,
-						pointStyle: dataset.pointStyle,
+				return helpers.isArray(data.datasets) ? data.datasets.map(function (dataset, i) {
+						return {
+							text: dataset.label,
+							fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
+							hidden: !chart.isDatasetVisible(i),
+							lineCap: dataset.borderCapStyle,
+							lineDash: dataset.borderDash,
+							lineDashOffset: dataset.borderDashOffset,
+							lineJoin: dataset.borderJoinStyle,
+							lineWidth: dataset.borderWidth,
+							strokeStyle: dataset.borderColor,
+							pointStyle: dataset.pointStyle,
 
-						// Below is extra data used for toggling the datasets
-						datasetIndex: i
-					};
-				}, this) : [];
+							// Below is extra data used for toggling the datasets
+							datasetIndex: i
+						};
+					}, this) : [];
 			}
 		}
 	};
@@ -78,7 +78,7 @@ module.exports = function(Chart) {
 
 	Chart.Legend = Chart.Element.extend({
 
-		initialize: function(config) {
+		initialize: function (config) {
 			helpers.extend(this, config);
 
 			// Contains hit boxes for each dataset (in dataset order)
@@ -93,7 +93,7 @@ module.exports = function(Chart) {
 		// Any function can be extended by the legend type
 
 		beforeUpdate: noop,
-		update: function(maxWidth, maxHeight, margins) {
+		update: function (maxWidth, maxHeight, margins) {
 			var me = this;
 
 			// Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
@@ -127,7 +127,7 @@ module.exports = function(Chart) {
 		//
 
 		beforeSetDimensions: noop,
-		setDimensions: function() {
+		setDimensions: function () {
 			var me = this;
 			// Set the unconstrained dimension before label rotation
 			if (me.isHorizontal()) {
@@ -160,13 +160,13 @@ module.exports = function(Chart) {
 		//
 
 		beforeBuildLabels: noop,
-		buildLabels: function() {
+		buildLabels: function () {
 			var me = this;
 			var labelOpts = me.options.labels;
 			var legendItems = labelOpts.generateLabels.call(me, me.chart);
 
 			if (labelOpts.filter) {
-				legendItems = legendItems.filter(function(item) {
+				legendItems = legendItems.filter(function (item) {
 					return labelOpts.filter(item, me.chart.data);
 				});
 			}
@@ -182,7 +182,7 @@ module.exports = function(Chart) {
 		//
 
 		beforeFit: noop,
-		fit: function() {
+		fit: function () {
 			var me = this;
 			var opts = me.options;
 			var labelOpts = opts.labels;
@@ -225,7 +225,7 @@ module.exports = function(Chart) {
 					ctx.textAlign = 'left';
 					ctx.textBaseline = 'top';
 
-					helpers.each(me.legendItems, function(legendItem, i) {
+					helpers.each(me.legendItems, function (legendItem, i) {
 						var boxWidth = getBoxWidth(labelOpts, fontSize);
 						var width = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -255,7 +255,7 @@ module.exports = function(Chart) {
 					var currentColHeight = 0;
 					var itemHeight = fontSize + vPadding;
 
-					helpers.each(me.legendItems, function(legendItem, i) {
+					helpers.each(me.legendItems, function (legendItem, i) {
 						var boxWidth = getBoxWidth(labelOpts, fontSize);
 						var itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -293,12 +293,12 @@ module.exports = function(Chart) {
 		afterFit: noop,
 
 		// Shared Methods
-		isHorizontal: function() {
+		isHorizontal: function () {
 			return this.options.position === 'top' || this.options.position === 'bottom';
 		},
 
 		// Actually draw the legend on the canvas
-		draw: function() {
+		draw: function () {
 			var me = this;
 			var opts = me.options;
 			var labelOpts = opts.labels;
@@ -328,8 +328,25 @@ module.exports = function(Chart) {
 				var boxWidth = getBoxWidth(labelOpts, fontSize),
 					hitboxes = me.legendHitBoxes;
 
+				// draw a button in the label
+				// @matheushf
+				var drawButton = function (x, y, textWidth, boxWidth) {
+					// Set rectangle and corner values
+					var rectX = x - 11;
+					var rectY = y - 6;
+					var rectWidth = textWidth + boxWidth + 30;
+					var cornerRadius = 25;
+
+					ctx.lineJoin = "round";
+					ctx.lineWidth = cornerRadius;
+
+					ctx.strokeStyle = 'rgba(0, 0, 0, 0.05';
+					ctx.strokeRect(rectX + (cornerRadius / 2), rectY + (cornerRadius / 2), rectWidth - cornerRadius, 0);
+					ctx.fillRect(rectX + (cornerRadius / 2), rectY + (cornerRadius / 2), rectWidth - cornerRadius, 0);
+				};
+
 				// current position
-				var drawLegendBox = function(x, y, legendItem) {
+				var drawLegendBox = function (x, y, legendItem) {
 					if (isNaN(boxWidth) || boxWidth <= 0) {
 						return;
 					}
@@ -370,13 +387,14 @@ module.exports = function(Chart) {
 
 					ctx.restore();
 				};
-				var fillText = function(x, y, legendItem, textWidth) {
+				var fillText = function (x, y, legendItem, textWidth) {
 					ctx.fillText(legendItem.text, boxWidth + (fontSize / 2) + x, y);
 
 					if (legendItem.hidden) {
 						// Strikethrough the text if hidden
 						ctx.beginPath();
 						ctx.lineWidth = 2;
+						ctx.strokeStyle = 'red';
 						ctx.moveTo(boxWidth + (fontSize / 2) + x, y + (fontSize / 2));
 						ctx.lineTo(boxWidth + (fontSize / 2) + x + textWidth, y + (fontSize / 2));
 						ctx.stroke();
@@ -400,7 +418,7 @@ module.exports = function(Chart) {
 				}
 
 				var itemHeight = fontSize + labelOpts.padding;
-				helpers.each(me.legendItems, function(legendItem, i) {
+				helpers.each(me.legendItems, function (legendItem, i) {
 					var textWidth = ctx.measureText(legendItem.text).width,
 						width = boxWidth + (fontSize / 2) + textWidth,
 						x = cursor.x,
@@ -417,6 +435,8 @@ module.exports = function(Chart) {
 						y = cursor.y = me.top + labelOpts.padding;
 						cursor.line++;
 					}
+
+					drawButton(x, y, textWidth, boxWidth);
 
 					drawLegendBox(x, y, legendItem);
 
@@ -442,7 +462,7 @@ module.exports = function(Chart) {
 		 * @param {IEvent} event - The event to handle
 		 * @return {Boolean} true if a change occured
 		 */
-		handleEvent: function(e) {
+		handleEvent: function (e) {
 			var me = this;
 			var opts = me.options;
 			var type = e.type === 'mouseup' ? 'click' : e.type;
@@ -503,14 +523,14 @@ module.exports = function(Chart) {
 
 	// Register the legend plugin
 	Chart.plugins.register({
-		beforeInit: function(chart) {
+		beforeInit: function (chart) {
 			var legendOpts = chart.options.legend;
 
 			if (legendOpts) {
 				createNewLegendAndAttach(chart, legendOpts);
 			}
 		},
-		beforeUpdate: function(chart) {
+		beforeUpdate: function (chart) {
 			var legendOpts = chart.options.legend;
 
 			if (legendOpts) {
@@ -526,7 +546,7 @@ module.exports = function(Chart) {
 				delete chart.legend;
 			}
 		},
-		afterEvent: function(chart, e) {
+		afterEvent: function (chart, e) {
 			var legend = chart.legend;
 			if (legend) {
 				legend.handleEvent(e);
